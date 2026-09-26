@@ -5,9 +5,9 @@ const MATERIAL_ROOT = 'C:/Users/HP/Desktop/制作网站资料'
 
 export default defineConfig({
   plugins: [react()],
-  // GitHub Pages：仓库名是「用户名.github.io」时网址就在根目录，用 '/'
-  // 如果是普通项目仓库（网址带 /仓库名/），把这里改成 '/仓库名/'
-  base: '/',
+  // 本地开发用 '/'；打包上线时因为仓库名是 wxnbiandao，
+  // 网址是 https://1956678193-sketch.github.io/wxnbiandao/，所以要加这个前缀
+  base: process.env.GITHUB_PAGES === '1' ? '/wxnbiandao/' : '/',
   build: {
     // Pages 直接从 main 分支的 docs 目录托管，不用额外配 Actions
     outDir: 'docs',

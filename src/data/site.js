@@ -8,7 +8,9 @@
 // 中文路径必须编码后再交给浏览器，否则 Vite 会报 URI malformed
 const VIDEO_ROOT = import.meta.env.DEV
   ? '/@fs/C:/Users/HP/Desktop/制作网站资料/02_作品集'
-  : '/videos'
+  : `${import.meta.env.BASE_URL}videos`
+// 图片同理，BASE_URL 在本地是 '/'，上线是 '/wxnbiandao/'
+const MEDIA_ROOT = `${import.meta.env.BASE_URL}media`
 // 下面每条视频路径里已经带了 VIDEO_ROOT，这里只负责编码，不要再拼一次
 const v = (path) => encodeURI(path)
 
@@ -62,7 +64,7 @@ export const defaultContent = {
   profile: {
     name: "王晓娜",
     role: "编导 / 新媒体运营",
-    avatar: "/media/avatar.jpg",
+    avatar: `${MEDIA_ROOT}/avatar.jpg`,
     intro: [
       "我是王晓娜，做了六年垂类短视频编导。服务过律所机构号和律师个人 IP 两类主体，覆盖婚姻家事、合同纠纷、刑事辩护、劳动争议、公司治理五个方向。选题、脚本、拍摄统筹全流程。",
       "累计参与产出 2220+ 条作品，独立撰写口播逐字稿 1500+ 条，最高单条播放 287 万。主责的【郑州律师魏涛】账号，三年从 46.7 万涨到 158.9 万。",
@@ -93,7 +95,7 @@ export const defaultContent = {
         title: "AIGC 旅行 vlog",
         desc: "AI 生成的画面和实拍素材混着剪，一条完整的旅行短片。",
         video: v(`${VIDEO_ROOT}/AIGC生成/AIGC旅行vlog-最终版.mp4`),
-        poster: "/media/cover-01-aigc-vlog.jpg",
+        poster: `${MEDIA_ROOT}/cover-01-aigc-vlog.jpg`,
         ratio: 0.562,
       },
       {
@@ -102,7 +104,7 @@ export const defaultContent = {
         title: "账号作品",
         desc: "自己账号作品。",
         video: v(`${VIDEO_ROOT}/剪辑技法/短视频内容与场景搭配.mp4`),
-        poster: "/media/cover-02-interview.jpg",
+        poster: `${MEDIA_ROOT}/cover-02-interview.jpg`,
         ratio: 0.562,
       },
       {
@@ -111,7 +113,7 @@ export const defaultContent = {
         title: "数字人口播",
         desc: "法律科普类内容，用数字人完成出镜与口播。",
         video: v(`${VIDEO_ROOT}/访谈口播/律师数字人剪辑-协议离婚和诉讼离婚.mp4`),
-        poster: "/media/cover-03-digital-human.jpg",
+        poster: `${MEDIA_ROOT}/cover-03-digital-human.jpg`,
         ratio: 0.562,
       },
       {
@@ -120,7 +122,7 @@ export const defaultContent = {
         title: "产品卖点片",
         desc: "把一个卖点拆开讲清楚，短平快，不绕。",
         video: v(`${VIDEO_ROOT}/商业带货/营销成品-红豆奶酪味面包.mp4`),
-        poster: "/media/cover-04-ecommerce.jpg",
+        poster: `${MEDIA_ROOT}/cover-04-ecommerce.jpg`,
         ratio: 0.562,
       },
       {
@@ -129,7 +131,7 @@ export const defaultContent = {
         title: "自然流访谈",
         desc: "不摆拍，靠剪辑从一段长访谈里找节奏和情绪落点。",
         video: v(`${VIDEO_ROOT}/访谈口播/留学口播剪辑.mp4`),
-        poster: "/media/cover-05-account.jpg",
+        poster: `${MEDIA_ROOT}/cover-05-account.jpg`,
         ratio: 0.562,
       },
       {
@@ -138,7 +140,7 @@ export const defaultContent = {
         title: "服装视频",
         desc: "运用AI让服装匹配场景展示服装，降低成本。",
         video: v(`${VIDEO_ROOT}/商业带货/罗马风服装视频.mp4`),
-        poster: "/media/cover-06-clothes.jpg",
+        poster: `${MEDIA_ROOT}/cover-06-clothes.jpg`,
         ratio: 0.562,
       },
       {
@@ -147,7 +149,7 @@ export const defaultContent = {
         title: "异世界少女",
         desc: "运用AI制作2D动画，让脑中的想法变成现实。",
         video: v(`${VIDEO_ROOT}/AIGC生成/AI制作动画.mp4`),
-        poster: "/media/cover-07-anime.jpg",
+        poster: `${MEDIA_ROOT}/cover-07-anime.jpg`,
         ratio: 1.778,
       },
       {
@@ -156,7 +158,7 @@ export const defaultContent = {
         title: "便利店场景",
         desc: "运用AI制作场景对话。",
         video: v(`${VIDEO_ROOT}/访谈口播/便利店对话.mp4`),
-        poster: "/media/cover-08-store.jpg",
+        poster: `${MEDIA_ROOT}/cover-08-store.jpg`,
         ratio: 1.78,
       },
       {
@@ -165,7 +167,7 @@ export const defaultContent = {
         title: "调色作品",
         desc: "利用达芬奇进行一级调色。",
         video: v(`${VIDEO_ROOT}/剪辑技法/调色作品.mp4`),
-        poster: "/media/cover-09-color.jpg",
+        poster: `${MEDIA_ROOT}/cover-09-color.jpg`,
         ratio: 1.778,
       },
       {
