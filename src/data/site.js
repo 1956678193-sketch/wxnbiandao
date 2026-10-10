@@ -176,7 +176,7 @@ export const defaultContent = {
         title: "四屏开场",
         desc: "运用剪映剪辑转场，让视频看起来不单调。",
         video: v(`${VIDEO_ROOT}/剪辑技法/剪辑-四屏开场.mp4`),
-        poster: "media:mmugpmgvy5s5nr",
+        poster: `${MEDIA_ROOT}/cover-10-sisplit.jpg`,
         ratio: 1.778,
       },
     ],
