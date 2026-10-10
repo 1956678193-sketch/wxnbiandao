@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { defaultContent } from '../data/site'
 import { mediaPut, mediaGet, mediaGetAll, mediaClear } from './media'
 
@@ -29,6 +29,69 @@ export function ContentProvider({ children }) {
   const [editing, setEditing] = useState(false)
   const [ready, setReady] = useState(false)
 
+  // 撤回 / 重做用的历史栈（最多留 60 步），contentRef 始终跟着最新的内容
+  const past = useRef([])
+  const future = useRef([])
+  const contentRef = useRef(defaultContent)
+  useEffect(() => {
+    contentRef.current = content
+  }, [content])
+
+  // 统一的写入口。silent = true 是系统自动写入（读视频宽高、自动抽首帧），不占一步撤回
+  const commit = useCallback((updater, silent = false) => {
+    setContent((c) => {
+      const next = typeof updater === 'function' ? updater(c) : updater
+      if (!next || next === c) return c
+      if (!silent) {
+        // StrictMode 下更新函数会跑两次，用最后一项比对避免重复入栈
+        if (past.current[past.current.length - 1] !== c) {
+          past.current.push(c)
+          if (past.current.length > 60) past.current.shift()
+        }
+        future.current = []
+      }
+      contentRef.current = next
+      return next
+    })
+  }, [])
+
+  const undo = useCallback(() => {
+    const prev = past.current.pop()
+    if (!prev) return
+    future.current.push(contentRef.current)
+    contentRef.current = prev
+    setContent(prev)
+  }, [])
+
+  const redo = useCallback(() => {
+    const next = future.current.pop()
+    if (!next) return
+    past.current.push(contentRef.current)
+    contentRef.current = next
+    setContent(next)
+  }, [])
+
+  // 编辑模式下的快捷键：Ctrl/⌘ + Z 撤回，Ctrl/⌘ + Shift + Z（或 Ctrl + Y）重做
+  useEffect(() => {
+    if (!editing) return
+    const onKey = (e) => {
+      const t = e.target
+      // 正在改文字时交给浏览器自己的撤销
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || ''))) return
+      if (!(e.ctrlKey || e.metaKey)) return
+      const k = String(e.key || '').toLowerCase()
+      if (k === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        undo()
+      } else if (k === 'y' || (k === 'z' && e.shiftKey)) {
+        e.preventDefault()
+        redo()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [editing, undo, redo])
+
   // 启动：读本地保存的文字 + 读上传过的媒体
   useEffect(() => {
     ;(async () => {
@@ -58,9 +121,27 @@ export function ContentProvider({ children }) {
     }
   }, [content, ready])
 
-  const update = useCallback((path, value) => {
-    setContent((c) => setIn(c, path, value))
-  }, [])
+  // 改文字：值没变就不记一步
+  const update = useCallback(
+    (path, value) => {
+      commit((c) => {
+        const cur = path
+          .split('.')
+          .reduce((o, k) => (o == null ? o : Array.isArray(o) ? o[Number(k)] : o[k]), c)
+        if (cur === value) return c
+        return setIn(c, path, value)
+      })
+    },
+    [commit]
+  )
+
+  // 系统自动写入（不进撤回记录）
+  const updateSilent = useCallback(
+    (path, value) => {
+      commit((c) => setIn(c, path, value), true)
+    },
+    [commit]
+  )
 
   const resolveMedia = useCallback(
     (src) => {
@@ -82,7 +163,7 @@ export function ContentProvider({ children }) {
 
   const addWork = useCallback(() => {
     const id = uid()
-    setContent((c) => ({
+    commit((c) => ({
       ...c,
       works: {
         ...c.works,
@@ -92,32 +173,38 @@ export function ContentProvider({ children }) {
         ],
       },
     }))
-  }, [])
+  }, [commit])
 
-  const removeWork = useCallback((id) => {
-    setContent((c) => ({
-      ...c,
-      works: { ...c.works, items: c.works.items.filter((w) => w.id !== id) },
-    }))
-  }, [])
+  const removeWork = useCallback(
+    (id) => {
+      commit((c) => ({
+        ...c,
+        works: { ...c.works, items: c.works.items.filter((w) => w.id !== id) },
+      }))
+    },
+    [commit]
+  )
 
   const addStrength = useCallback(() => {
     const no = String(Math.floor(Math.random() * 90) + 10)
-    setContent((c) => ({
+    commit((c) => ({
       ...c,
       strengths: {
         ...c.strengths,
         items: [...c.strengths.items, { no, title: '新优势', desc: '写一句你能做到的事。' }],
       },
     }))
-  }, [])
+  }, [commit])
 
-  const removeStrength = useCallback((index) => {
-    setContent((c) => ({
-      ...c,
-      strengths: { ...c.strengths, items: c.strengths.items.filter((_, i) => i !== index) },
-    }))
-  }, [])
+  const removeStrength = useCallback(
+    (index) => {
+      commit((c) => ({
+        ...c,
+        strengths: { ...c.strengths, items: c.strengths.items.filter((_, i) => i !== index) },
+      }))
+    },
+    [commit]
+  )
 
   // 把网页上改好的内容整份导出来存成文件，方便同步回项目代码
   const exportContent = useCallback(() => {
@@ -142,7 +229,7 @@ export function ContentProvider({ children }) {
       try {
         const obj = JSON.parse(String(reader.result))
         if (obj && typeof obj === 'object') {
-          setContent({ ...defaultContent, ...obj })
+          commit(() => ({ ...defaultContent, ...obj }))
           window.alert('内容已导入')
         }
       } catch (e) {
@@ -150,7 +237,7 @@ export function ContentProvider({ children }) {
       }
     }
     reader.readAsText(file)
-  }, [])
+  }, [commit])
 
   // 把上传过的图片/视频按「头像 / 作品01_标题 / 作品01_标题_封面」这样的名字下载下来
   const exportMedia = useCallback(async () => {
@@ -200,7 +287,7 @@ export function ContentProvider({ children }) {
   }, [content])
 
   const resetAll = useCallback(async () => {
-    if (!window.confirm('恢复默认会清掉你在网页上做过的全部修改和上传的文件，确定？')) return
+    if (!window.confirm('恢复默认会清掉你在网页上做过的全部修改和上传的文件，且不可撤回，确定？')) return
     try {
       localStorage.removeItem(LS_KEY)
       await mediaClear()
@@ -208,6 +295,10 @@ export function ContentProvider({ children }) {
       console.warn(e)
     }
     setMediaUrls({})
+    // 恢复默认后历史一并清空，避免撤回到已经不存在的上传文件
+    past.current = []
+    future.current = []
+    contentRef.current = defaultContent
     setContent(defaultContent)
   }, [])
 
@@ -217,6 +308,7 @@ export function ContentProvider({ children }) {
       editing,
       setEditing,
       update,
+      updateSilent,
       resolveMedia,
       uploadMedia,
       addWork,
@@ -227,11 +319,16 @@ export function ContentProvider({ children }) {
       importContent,
       exportMedia,
       resetAll,
+      undo,
+      redo,
+      canUndo: past.current.length > 0,
+      canRedo: future.current.length > 0,
     }),
     [
       content,
       editing,
       update,
+      updateSilent,
       resolveMedia,
       uploadMedia,
       addWork,
@@ -242,6 +339,8 @@ export function ContentProvider({ children }) {
       importContent,
       exportMedia,
       resetAll,
+      undo,
+      redo,
     ]
   )
 

@@ -813,6 +813,10 @@ a {
   border-radius: 999px;
   background: rgba(20, 19, 15, 0.94);
   box-shadow: 0 12px 44px rgba(0, 0, 0, 0.28);
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 10px;
+  max-width: calc(100vw - 48px);
 }
 
 .editor-panel .hint {
@@ -838,6 +842,22 @@ a {
 .editor-panel button:hover {
   background: #fff;
   color: var(--ink);
+}
+
+/* 撤回 / 重做：没有可撤回的步骤时置灰 */
+.editor-panel button.undo {
+  border-color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+}
+
+.editor-panel button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.editor-panel button:disabled:hover {
+  background: transparent;
+  color: #fff;
 }
 
 .editor-panel button.danger {

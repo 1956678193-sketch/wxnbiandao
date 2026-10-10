@@ -68,7 +68,7 @@ function WorkCard({ item, index, onOpen, onMeta }) {
 }
 
 export default function Works() {
-  const { content, resolveMedia, update } = useContent()
+  const { content, resolveMedia, update, updateSilent } = useContent()
   const [openIndex, setOpenIndex] = useState(null)
 
   const current = openIndex === null ? null : content.works.items[openIndex]
@@ -78,7 +78,7 @@ export default function Works() {
     if (!w || !h) return
     const r = Math.round((w / h) * 1000) / 1000
     const old = content.works.items[index].ratio || 0
-    if (Math.abs(old - r) > 0.01) update(`works.items.${index}.ratio`, r)
+    if (Math.abs(old - r) > 0.01) updateSilent(`works.items.${index}.ratio`, r)
   }
 
   return (

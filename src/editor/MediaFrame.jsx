@@ -19,7 +19,7 @@ export default function MediaFrame({
   onMeta,
   emptyText,
 }) {
-  const { editing, update, uploadMedia } = useContent()
+  const { editing, update, updateSilent, uploadMedia } = useContent()
   const inputRef = useRef(null)
   const imageInputRef = useRef(null)
   const videoRef = useRef(null)
@@ -55,7 +55,7 @@ export default function MediaFrame({
     capRef.current = src
     captureFrame(src).then((blob) => {
       if (!blob) return
-      uploadMedia(blob).then((key) => update(posterPath, key))
+      uploadMedia(blob).then((key) => updateSilent(posterPath, key))
     })
   }
 

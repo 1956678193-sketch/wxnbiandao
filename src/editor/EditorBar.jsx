@@ -11,6 +11,10 @@ export default function EditorBar() {
     importContent,
     exportMedia,
     resetAll,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   } = useContent()
   const fileRef = useRef(null)
 
@@ -19,6 +23,24 @@ export default function EditorBar() {
       {editing && (
         <div className="editor-panel">
           <span className="hint">点文字直接改 · 点画面上的「更换」换视频或图片 · 改完自动保存</span>
+          <button
+            type="button"
+            className="undo"
+            onClick={undo}
+            disabled={!canUndo}
+            title="撤回上一步改动（Ctrl + Z）"
+          >
+            ↩ 撤回
+          </button>
+          <button
+            type="button"
+            className="undo"
+            onClick={redo}
+            disabled={!canRedo}
+            title="重做（Ctrl + Shift + Z）"
+          >
+            ↪ 重做
+          </button>
           <button type="button" onClick={addWork}>
             ＋ 新增作品模块
           </button>
