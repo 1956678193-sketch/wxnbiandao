@@ -73,7 +73,7 @@ export const defaultContent = {
     contact: {
       phone: "15516035875",
       wechat: "xwdbdrj323",
-      email: "",
+      email: "1956678193@qq.com",
       location: "北京",
     },
     stats: [
