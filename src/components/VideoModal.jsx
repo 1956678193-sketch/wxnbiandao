@@ -26,6 +26,9 @@ export default function VideoModal({ item, src, onClose }) {
           ) : (
             <div className="lightbox-empty">这条还没上传视频</div>
           )}
+          <button type="button" className="lightbox-x" onClick={onClose} aria-label="关闭视频">
+            ✕
+          </button>
         </div>
         <div className="lightbox-meta">
           <span className="work-tag-static">{item.tag}</span>
