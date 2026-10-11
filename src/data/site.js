@@ -181,7 +181,7 @@ export const defaultContent = {
       },
       {
         id: "mmv2gueqq7qaen",
-        tag: "新作品",
+        tag: "非遗宣传片",
         title: "京剧传承短片",
         desc: "利用AI制作京剧非遗宣传片",
         video: v(`${VIDEO_ROOT}/AIGC生成/京剧宣传.mp4`),
@@ -190,7 +190,7 @@ export const defaultContent = {
       },
       {
         id: "mmv2gxyjsz3kqy",
-        tag: "新作品",
+        tag: "普法小短片",
         title: "普法小短片：一张藏起来的通知单",
         desc: "运用AI制作关于离婚后抚养权的小短片，让法律条款变得通俗易懂。",
         video: v(`${VIDEO_ROOT}/AIGC生成/普法小短剧.mp4`),
