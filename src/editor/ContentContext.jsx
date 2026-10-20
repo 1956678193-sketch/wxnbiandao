@@ -3,7 +3,7 @@ import { defaultContent } from '../data/site'
 import { mediaPut, mediaGet, mediaGetAll, mediaClear } from './media'
 
 // 改动默认内容结构后 +1，旧缓存会被丢弃，避免网页上显示旧文案或旧的错误路径
-const LS_KEY = 'wxn-portfolio-content-v16'
+const LS_KEY = 'wxn-portfolio-content-v17'
 const Ctx = createContext(null)
 
 export const useContent = () => useContext(Ctx)
